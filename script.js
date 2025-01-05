@@ -7,11 +7,11 @@ let Gameboard = (function createGame() {
 
     let players = [
         {
-            name: "Jan",
+            name: "Player1",
             marker: "X"
         },
         {
-            name: "Juli",
+            name: "Player2",
             marker: "O"
         }
     ];
@@ -22,11 +22,9 @@ let Gameboard = (function createGame() {
         winner: "" //set to winning player's name
     }
 
-    // function addPlayer(name, marker) {
-    //     players.push({
-    //         name, marker
-    //     })
-    // }
+    function setPlayer(playerIndex, name, marker) {
+        players[playerIndex] = {name, marker}
+    }
 
     function playRound(row, col) {
         if (gameboard[row][col] === null) {
@@ -40,5 +38,5 @@ let Gameboard = (function createGame() {
         }
     }
 
-    return { playRound }
+    return { playRound, setPlayer }
 })()
