@@ -21,7 +21,7 @@ function Gameboard(size = 3) {
 
     function markCell(row, col, marker) {
         if (isIndexInvalid(row) || isIndexInvalid(col)) {
-            console.error(`Invalid indices (${row}, ${col}). Indices must be >= 0 and < ${gameBoardSize}.`)
+            console.error(`Invalid indices (${row}, ${col}). Indices must be >= 0 and < ${gameBoardSize}.`);
         } else if (gameboard[row][col] !== null) {
             console.error(`Selected field (${row}, ${col}) is already taken. Invalid move!`);
         } else {
@@ -31,6 +31,32 @@ function Gameboard(size = 3) {
 
     function isIndexInvalid(index) {
         return index < 0 || gameBoardSize <= index;
+    }
+
+    function isTie(marker1, marker2) {
+        const hasTieRows = gameboard.every(row => row.includes(marker1) && row.includes(marker2));
+
+        let gameboardByColumns = [];
+        for (let colIndex = 0; colIndex < gameBoardSize; colIndex++) {
+            gameboardByColumns[colIndex] = [];
+            for (let rowIndex = 0; rowIndex < gameBoardSize; rowIndex++) {
+                gameboardByColumns[colIndex].push(gameboard[rowIndex][colIndex]);
+            }
+        }
+        const hasTieCols = gameboardByColumns.every(col => col.includes(marker1) && col.includes(marker2));
+
+        let diagonal1 = [];
+        for (let rowColIndex = 0; rowColIndex < gameBoardSize; rowColIndex++) {
+            diagonal1.push(gameboard[rowColIndex][rowColIndex]);
+        }
+        let diagonal2 = [];
+        for (let rowIndex = 0; rowIndex < gameBoardSize; rowIndex++) {
+            let colIndex = gameBoardSize - 1 - rowIndex;
+            diagonal2.push(gameboard[rowIndex][colIndex]);
+        }
+        const hasTieDiagonals = [diagonal1, diagonal2].every(diagonal => diagonal.includes(marker1) && diagonal.includes(marker2));
+
+        return hasTieRows && hasTieCols && hasTieDiagonals;
     }
 
     function hasWinningCondition(marker) {
@@ -61,7 +87,7 @@ function Gameboard(size = 3) {
         return hasWinningRow || hasWinningCol || hasWinningDiagonal;
     }
 
-    return { markCell, hasWinningCondition, getGameboard, printGameboard }
+    return { markCell, hasWinningCondition, isTie, getGameboard, printGameboard }
 }
 
 function Player(id, name, marker) {
@@ -95,6 +121,9 @@ function GameController(playerOneName = "Player1", playerTwoName = "Player2") {
         board.markCell(row, col, getActivePlayer().marker);
         if (board.hasWinningCondition(getActivePlayer().marker)) {
             console.log(`${getActivePlayer().name} wins the game! Congratulations!`)
+        } else if (board.isTie(players[0].marker, players[1].marker)) {
+            board.printGameboard();
+            console.log("Game ends with a tie. Good play!");
         } else {
             board.printGameboard();
             switchActivePlayer();
