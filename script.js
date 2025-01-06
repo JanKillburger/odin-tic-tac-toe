@@ -36,6 +36,24 @@ function Gameboard(size = 3) {
     function isTie(marker1, marker2) {
         const hasTieRows = gameboard.every(row => row.includes(marker1) && row.includes(marker2));
 
+        const hasTieCols = getGameboardByColumns().every(col => col.includes(marker1) && col.includes(marker2));
+
+        const hasTieDiagonals = getGameboardDiagonals().every(diagonal => diagonal.includes(marker1) && diagonal.includes(marker2));
+
+        return hasTieRows && hasTieCols && hasTieDiagonals;
+    }
+
+    function hasWinningCondition(marker) {
+        const hasWinningRow = gameboard.some(row => row.every(cell => cell === marker));
+
+        const hasWinningCol = getGameboardByColumns().some(col => col.every(cell => cell === marker));
+
+        const hasWinningDiagonal = getGameboardDiagonals().some(diagonal => diagonal.every(cell => cell === marker));
+
+        return hasWinningRow || hasWinningCol || hasWinningDiagonal;
+    }
+
+    function getGameboardByColumns() {
         let gameboardByColumns = [];
         for (let colIndex = 0; colIndex < gameBoardSize; colIndex++) {
             gameboardByColumns[colIndex] = [];
@@ -43,36 +61,11 @@ function Gameboard(size = 3) {
                 gameboardByColumns[colIndex].push(gameboard[rowIndex][colIndex]);
             }
         }
-        const hasTieCols = gameboardByColumns.every(col => col.includes(marker1) && col.includes(marker2));
 
-        let diagonal1 = [];
-        for (let rowColIndex = 0; rowColIndex < gameBoardSize; rowColIndex++) {
-            diagonal1.push(gameboard[rowColIndex][rowColIndex]);
-        }
-        let diagonal2 = [];
-        for (let rowIndex = 0; rowIndex < gameBoardSize; rowIndex++) {
-            let colIndex = gameBoardSize - 1 - rowIndex;
-            diagonal2.push(gameboard[rowIndex][colIndex]);
-        }
-        const hasTieDiagonals = [diagonal1, diagonal2].every(diagonal => diagonal.includes(marker1) && diagonal.includes(marker2));
-
-        return hasTieRows && hasTieCols && hasTieDiagonals;
+        return gameboardByColumns;
     }
 
-    function hasWinningCondition(marker) {
-        //check rows
-        const hasWinningRow = gameboard.some(row => row.every(cell => cell === marker));
-        //check columns
-        let hasWinningCol = false;
-        for (let colIndex = 0; colIndex < gameBoardSize; colIndex++) {
-            let currentCol = [];
-            for (let rowIndex = 0; rowIndex < gameBoardSize; rowIndex++) {
-                currentCol.push(gameboard[rowIndex][colIndex]);
-            }
-            hasWinningCol = currentCol.every(cell => cell === marker);
-            if (hasWinningCol) break;
-        }
-        //check diagonals
+    function getGameboardDiagonals() {
         let diagonal1 = [];
         for (let rowColIndex = 0; rowColIndex < gameBoardSize; rowColIndex++) {
             diagonal1.push(gameboard[rowColIndex][rowColIndex]);
@@ -82,9 +75,8 @@ function Gameboard(size = 3) {
             let colIndex = gameBoardSize - 1 - rowIndex;
             diagonal2.push(gameboard[rowIndex][colIndex]);
         }
-        const hasWinningDiagonal = [diagonal1, diagonal2].some(diagonal => diagonal.every(cell => cell === marker));
 
-        return hasWinningRow || hasWinningCol || hasWinningDiagonal;
+        return [diagonal1, diagonal2];
     }
 
     return { markCell, hasWinningCondition, isTie, getGameboard, printGameboard }
