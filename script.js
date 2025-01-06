@@ -1,51 +1,39 @@
-let Gameboard = (function createGame() {
-    const gameBoardSize = 3;
+function Gameboard(size = 3) {
 
-    let gameboard = [
-        [null, null, null],
-        [null, null, null],
-        [null, null, null],
-    ];
+    const gameBoardSize = size;
 
-    let players = [
-        {
-            name: "Player1",
-            marker: "X"
-        },
-        {
-            name: "Player2",
-            marker: "O"
+    let gameboard = [];
+
+    for (let rowIndex = 0; rowIndex < gameBoardSize; rowIndex++) {
+        gameboard[rowIndex] = [];
+        for (let colIndex = 0; colIndex < gameBoardSize; colIndex++) {
+            gameboard[rowIndex].push(null);
         }
-    ];
-
-    let game = {
-        gameStatus: "active", //set to "finished" when done
-        currentPlayerIndex: 0,
-        winner: "" //set to winning player's name
     }
 
-    function setPlayer(playerIndex, name, marker) {
-        players[playerIndex] = { name, marker }
+    function getGameboard() {
+        return gameboard;
     }
 
-    function playRound(row, col) {
-        if (gameboard[row][col] === null) {
-            gameboard[row][col] = players[game.currentPlayerIndex].marker;
-            //check if current player wins, otherwise switch to other player
-            if (isPlayerWinning(players[game.currentPlayerIndex].marker)) {
-                console.log(`${players[game.currentPlayerIndex].name} wins the game! Congratulations!`)
-            } else {
-                game.currentPlayerIndex = game.currentPlayerIndex === 0 ? 1 : 0;
-                console.log(gameboard);
-                console.log(`It's ${players[game.currentPlayerIndex].name}'s turn now!`);
-            }
+    function printGameboard() {
+        gameboard.forEach(console.log);
+    }
 
+    function markCell(row, col, marker) {
+        if (isIndexInvalid(row) || isIndexInvalid(col)) {
+            console.error(`Invalid indices (${row}, ${col}). Indices must be >= 0 and < ${gameBoardSize}.`)
+        } else if (gameboard[row][col] !== null) {
+            console.error(`Selected field (${row}, ${col}) is already taken. Invalid move!`);
         } else {
-            console.error(`Selected field (${row + 1}, ${col + 1}) is already taken. Invalid move!`);
+            gameboard[row][col] = marker;
         }
     }
 
-    function isPlayerWinning(marker) {
+    function isIndexInvalid(index) {
+        return index < 0 || gameBoardSize <= index;
+    }
+
+    function hasWinningCondition(marker) {
         //check rows
         const hasWinningRow = gameboard.some(row => row.every(cell => cell === marker));
         //check columns
@@ -73,5 +61,48 @@ let Gameboard = (function createGame() {
         return hasWinningRow || hasWinningCol || hasWinningDiagonal;
     }
 
-    return { playRound, setPlayer }
-})()
+    return { markCell, hasWinningCondition, getGameboard, printGameboard }
+}
+
+function Player(id, name, marker) {
+    function setPlayer(newName, newMarker) {
+        name = newName;
+        marker = newMarker;
+    }
+
+    return { id, name, marker, setPlayer }
+}
+
+function GameController(playerOneName = "Player1", playerTwoName = "Player2") {
+    let board = Gameboard();
+
+    let players = [];
+
+    players.push(Player(1, playerOneName, "X"));
+    players.push(Player(2, playerTwoName, "O"));
+
+    let activePlayer = players[0];
+
+    function getActivePlayer() {
+        return activePlayer;
+    }
+
+    function switchActivePlayer() {
+        activePlayer = getActivePlayer().id === 1 ? players[1] : players[0];
+    }
+
+    function playRound(row, col) {
+        board.markCell(row, col, getActivePlayer().marker);
+        if (board.hasWinningCondition(getActivePlayer().marker)) {
+            console.log(`${getActivePlayer().name} wins the game! Congratulations!`)
+        } else {
+            board.printGameboard();
+            switchActivePlayer();
+            console.log(`It's ${getActivePlayer().name}'s turn now!`);
+        }
+    }
+
+    return { playRound }
+}
+
+let game = GameController();
