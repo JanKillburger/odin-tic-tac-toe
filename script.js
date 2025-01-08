@@ -2,12 +2,18 @@ function Gameboard(size = 3) {
 
     const gameBoardSize = size;
 
-    let gameboard = [];
+    let gameboard;
 
-    for (let rowIndex = 0; rowIndex < gameBoardSize; rowIndex++) {
-        gameboard[rowIndex] = [];
-        for (let colIndex = 0; colIndex < gameBoardSize; colIndex++) {
-            gameboard[rowIndex].push(null);
+    init();
+
+    function init() {
+        gameboard = [];
+
+        for (let rowIndex = 0; rowIndex < gameBoardSize; rowIndex++) {
+            gameboard[rowIndex] = [];
+            for (let colIndex = 0; colIndex < gameBoardSize; colIndex++) {
+                gameboard[rowIndex].push(null);
+            }
         }
     }
 
@@ -79,7 +85,7 @@ function Gameboard(size = 3) {
         return [diagonal1, diagonal2];
     }
 
-    return { markCell, hasWinningCondition, isTie, getGameboard, printGameboard }
+    return { markCell, hasWinningCondition, isTie, getGameboard, printGameboard, init }
 }
 
 function Player(id, name, marker) {
@@ -101,7 +107,13 @@ function GameController(playerOneName = "Player1", playerTwoName = "Player2") {
 
     let activePlayer = players[0];
 
-    let displayController = DisplayController(playRound);
+    let displayController = DisplayController(playRound, init);
+
+    function init() {
+        activePlayer = players[0];
+        board.init();
+        displayController.initDisplay();
+    }
 
     function getActivePlayer() {
         return activePlayer;
@@ -129,19 +141,22 @@ function GameController(playerOneName = "Player1", playerTwoName = "Player2") {
     return { playRound, getActivePlayer }
 }
 
-function DisplayController(playRound) {
+function DisplayController(playRound, initGame) {
     let board = document.getElementById("board");
-    let notificationsPanel = document.getElementById("notifications");    
+    let startGameBtn = document.getElementById("start-game");
+    let notificationsPanel = document.getElementById("notifications");
     let fields = board.querySelectorAll("button");
 
     [...fields].forEach(btn => btn.addEventListener("click", (ev) => handleUserSelection(ev)));
+    startGameBtn.addEventListener("click", initGame);
 
-    init();
+    initDisplay();
 
-    function init() {
+    function initDisplay() {
         [...fields].forEach(btn => {
             btn.textContent = "";
             btn.disabled = false;
+            sendNotification("");
         });
     }
 
@@ -166,7 +181,7 @@ function DisplayController(playRound) {
         [...fields].forEach(btn => btn.disabled = true);
     }
 
-    return { printGameboard, init, sendNotification, disableCells };
+    return { printGameboard, sendNotification, disableCells, initDisplay };
 }
 
 let game = GameController();
