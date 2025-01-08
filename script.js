@@ -115,14 +115,15 @@ function GameController(playerOneName = "Player1", playerTwoName = "Player2") {
         board.markCell(row, col, getActivePlayer().marker);
         displayController.printGameboard(board.getGameboard());
         if (board.hasWinningCondition(getActivePlayer().marker)) {
-            displayController.showNotification(`${getActivePlayer().name} wins the game! Congratulations!`)
+            displayController.sendNotification(`${getActivePlayer().name} wins the game! Congratulations!`);
+            displayController.disableCells();
         } else if (board.isTie(players[0].marker, players[1].marker)) {
-            displayController.showNotification("Game ends with a tie. Good play!");
+            displayController.sendNotification("Game ends with a tie. Good play!");
+            displayController.disableCells();
         } else {
             switchActivePlayer();
-            displayController.showNotification(`It's ${getActivePlayer().name}'s turn now!`);
+            displayController.sendNotification(`It's ${getActivePlayer().name}'s turn now!`);
         }
-        return getActivePlayer().marker;
     }
 
     return { playRound, getActivePlayer }
@@ -161,7 +162,11 @@ function DisplayController(playRound) {
         });
     }
 
-    return { printGameboard, init, showNotification: sendNotification };
+    function disableCells() {
+        [...fields].forEach(btn => btn.disabled = true);
+    }
+
+    return { printGameboard, init, sendNotification, disableCells };
 }
 
 let game = GameController();

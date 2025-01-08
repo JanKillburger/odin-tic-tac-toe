@@ -13,4 +13,8 @@
     padding: 1rem;
     border-radius: .3rem;
     min-height: 50px;
+
+    &:empty {
+        visibility: hidden;
+    }
 }
