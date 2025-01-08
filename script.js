@@ -107,7 +107,7 @@ function GameController(playerOneName = "Player1", playerTwoName = "Player2") {
 
     let activePlayer = players[0];
 
-    let displayController = DisplayController(playRound, init);
+    let displayController = DisplayController(playRound, init, setPlayerName);
 
     function init() {
         activePlayer = players[0];
@@ -117,6 +117,10 @@ function GameController(playerOneName = "Player1", playerTwoName = "Player2") {
 
     function getActivePlayer() {
         return activePlayer;
+    }
+
+    function setPlayerName(index, name) {
+        players[index].name = name;
     }
 
     function switchActivePlayer() {
@@ -141,12 +145,14 @@ function GameController(playerOneName = "Player1", playerTwoName = "Player2") {
     return { playRound, getActivePlayer }
 }
 
-function DisplayController(playRound, initGame) {
+function DisplayController(playRound, initGame, renamePlayer) {
     let board = document.getElementById("board");
     let startGameBtn = document.getElementById("start-game");
     let notificationsPanel = document.getElementById("notifications");
     let fields = board.querySelectorAll("button");
+    let players = document.querySelectorAll(".player-name-input");
 
+    [...players].forEach((player, index) => player.addEventListener("input", (ev) => setPlayerName(ev)));
     [...fields].forEach(btn => btn.addEventListener("click", (ev) => handleUserSelection(ev)));
     startGameBtn.addEventListener("click", initGame);
 
@@ -179,6 +185,12 @@ function DisplayController(playRound, initGame) {
 
     function disableCells() {
         [...fields].forEach(btn => btn.disabled = true);
+    }
+
+    function setPlayerName(ev) {
+        const name = ev.target.value;
+        const playerIndex = ev.target.closest("[data-player-index]").getAttribute("data-player-index");
+        renamePlayer(playerIndex, name);
     }
 
     return { printGameboard, sendNotification, disableCells, initDisplay };
