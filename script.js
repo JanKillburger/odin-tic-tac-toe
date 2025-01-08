@@ -138,13 +138,17 @@ function DisplayController(playRound) {
     init();
 
     function init() {
-        [...fields].forEach(btn => btn.textContent = "");
+        [...fields].forEach(btn => {
+            btn.textContent = "";
+            btn.disabled = false;
+        });
     }
 
     function handleUserSelection(ev) {
         const rowIndex = ev.target.getAttribute("data-row");
         const colIndex = ev.target.getAttribute("data-col");
         playRound(rowIndex, colIndex);
+        ev.target.disabled = true;
     }
 
     function printGameboard(gameboard) {
