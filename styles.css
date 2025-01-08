@@ -1,0 +1,8 @@
+.board {
+    --field-size: 48px;
+
+    display: grid;
+    grid-template-columns: repeat(3, var(--field-size));
+    grid-template-rows: repeat(3, var(--field-size));
+    gap: 8px;
+}

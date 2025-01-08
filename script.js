@@ -101,6 +101,8 @@ function GameController(playerOneName = "Player1", playerTwoName = "Player2") {
 
     let activePlayer = players[0];
 
+    let displayController = DisplayController(playRound);
+
     function getActivePlayer() {
         return activePlayer;
     }
@@ -111,19 +113,47 @@ function GameController(playerOneName = "Player1", playerTwoName = "Player2") {
 
     function playRound(row, col) {
         board.markCell(row, col, getActivePlayer().marker);
+        displayController.printGameboard(board.getGameboard());
         if (board.hasWinningCondition(getActivePlayer().marker)) {
             console.log(`${getActivePlayer().name} wins the game! Congratulations!`)
         } else if (board.isTie(players[0].marker, players[1].marker)) {
-            board.printGameboard();
             console.log("Game ends with a tie. Good play!");
         } else {
-            board.printGameboard();
             switchActivePlayer();
             console.log(`It's ${getActivePlayer().name}'s turn now!`);
         }
+        return getActivePlayer().marker;
     }
 
-    return { playRound }
+    return { playRound, getActivePlayer }
+}
+
+function DisplayController(playRound) {
+    let board = document.getElementById("board");
+
+    let fields = board.querySelectorAll("button");
+
+    [...fields].forEach(btn => btn.addEventListener("click", (ev) => handleUserSelection(ev)));
+
+    init();
+
+    function init() {
+        [...fields].forEach(btn => btn.textContent = "");
+    }
+
+    function handleUserSelection(ev) {
+        const rowIndex = ev.target.getAttribute("data-row");
+        const colIndex = ev.target.getAttribute("data-col");
+        playRound(rowIndex, colIndex);
+    }
+
+    function printGameboard(gameboard) {
+        [...fields].forEach(btn => {
+            btn.textContent = gameboard[btn.getAttribute("data-row")][btn.getAttribute("data-col")];
+        });
+    }
+
+    return { printGameboard, init };
 }
 
 let game = GameController();
