@@ -115,12 +115,12 @@ function GameController(playerOneName = "Player1", playerTwoName = "Player2") {
         board.markCell(row, col, getActivePlayer().marker);
         displayController.printGameboard(board.getGameboard());
         if (board.hasWinningCondition(getActivePlayer().marker)) {
-            console.log(`${getActivePlayer().name} wins the game! Congratulations!`)
+            displayController.showNotification(`${getActivePlayer().name} wins the game! Congratulations!`)
         } else if (board.isTie(players[0].marker, players[1].marker)) {
-            console.log("Game ends with a tie. Good play!");
+            displayController.showNotification("Game ends with a tie. Good play!");
         } else {
             switchActivePlayer();
-            console.log(`It's ${getActivePlayer().name}'s turn now!`);
+            displayController.showNotification(`It's ${getActivePlayer().name}'s turn now!`);
         }
         return getActivePlayer().marker;
     }
@@ -130,7 +130,7 @@ function GameController(playerOneName = "Player1", playerTwoName = "Player2") {
 
 function DisplayController(playRound) {
     let board = document.getElementById("board");
-
+    let notificationsPanel = document.getElementById("notifications");    
     let fields = board.querySelectorAll("button");
 
     [...fields].forEach(btn => btn.addEventListener("click", (ev) => handleUserSelection(ev)));
@@ -142,6 +142,10 @@ function DisplayController(playRound) {
             btn.textContent = "";
             btn.disabled = false;
         });
+    }
+
+    function sendNotification(notification) {
+        notificationsPanel.textContent = notification;
     }
 
     function handleUserSelection(ev) {
@@ -157,7 +161,7 @@ function DisplayController(playRound) {
         });
     }
 
-    return { printGameboard, init };
+    return { printGameboard, init, showNotification: sendNotification };
 }
 
 let game = GameController();
